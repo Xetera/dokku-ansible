@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-[[ -f "/home/dokku/.bashrc" ]] && source "/home/dokku/.bashrc"
 [[ $DOKKU_TRACE ]] && set -x
 
 trigger-ansible-pre-receive-app() {
@@ -10,6 +9,7 @@ trigger-ansible-pre-receive-app() {
   local ansible_playbook_file="$ansible_dokku_path/playbook.yml"
   local ansible_hosts_file="$ansible_dokku_path/inventory"
   local ansible_galaxy_requirements_file="$ansible_dokku_path/requirements.yml"
+  local ansible_vault_file="/home/dokku/ansible_password.txt"
 
   if [[ ! -f "$ansible_playbook_file" ]]; then
     return
@@ -50,7 +50,7 @@ trigger-ansible-pre-receive-app() {
   fi
 
   dokku_log_verbose "Executing ansible playbook"
-  ansible-playbook "$ansible_playbook_file" -i "$ansible_hosts_file" --extra-vars "app=$APP" | sed -u "s/^/       /"
+  ansible-playbook "$ansible_playbook_file" --vault-password-file "$ansible_vault_file" -i "$ansible_hosts_file" --extra-vars "app=$APP" | sed -u "s/^/       /"
   if [[ "${PIPESTATUS[0]}" != 0 ]]; then
     dokku_log_fail "Failed to run ansible"
   fi
