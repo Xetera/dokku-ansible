@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "~/.bashrc"
 [[ $DOKKU_TRACE ]] && set -x
 
 trigger-ansible-pre-receive-app() {
